@@ -10,7 +10,7 @@ const register = async(req,resp)=>{
         const {name,email,password} = req.body;
     let users = await user.findOne({email});
 
-if(!users)return next(new Error("User Already Exist"))
+if(users)return next(new Error("User Already Exist"))
     
 
 const hashedPassword = await bcrypt.hash(password,10);
@@ -43,8 +43,19 @@ const login = async(req,resp,next)=>{
         
         
         sendCookie(users,resp,`Welcome Back!, ${users.name}`,200)
+
+
+        // const token = jwt.sign({_id: users._id},process.env.JWT_SECRET)
+
+        // return resp.status(200).json({
+        //     success : true,
+        //     message,
+        //     token
+        //     })
         
     } catch (error) {
+
+        console(error)
 
         next(error)
         
@@ -65,8 +76,8 @@ const logout = async(req,resp)=>{
     try {
         resp.status(200).cookie("token","",{expires:new Date(Date.now()),
 
-        samesite : process.env.NODE_ENV === "Development"? "lax" :  "none",
-        secure : process.env.NODE_ENV === "Development"? false : true,
+        samesite: process.env.NODE_ENV === "Development"? "lax" :  "none",
+        secure: process.env.NODE_ENV === "Development"? false : true,
         
          }).json({
             success : true,
